@@ -1,1 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALPHINEX PLAY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2FC4D8;
+            --secondary: #1EDFCD;
+            --bg: #000000;
+            --card-bg: #1a1a1a;
+            --text-color: #ffffff;
+        }
 
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: var(--bg); 
+            color: var(--text-color);
+            overflow-x: hidden; 
+        }
+        
+        .purple-text { color: var(--primary); font-weight: bold; }
+
+        /* Login Page */
+        #login-page {
+            display: flex; flex-direction: column;
+            align-items: center; padding: 20px; margin-top: 50px;
+        }
+        #login-page h2 { color: var(--primary); font-size: 2.5rem; margin-bottom: 10px;}
+
+        .input-group { width: 90%; max-width: 400px; margin-bottom: 15px; }
+        input { 
+            width: 100%; padding: 12px; 
+            border: 1px solid #333; border-radius: 8px; 
+            background: #111; color: white; box-sizing: border-box; 
+        }
+        button { 
+            width: 100%; padding: 12px; 
+            background: var(--primary); color: white; border: none; 
+            border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold;
+        }
+
+        #otp-display { font-weight: bold; color: #A9BD06; margin: 10px 0; display: none; }
+
+        /* Main Dashboard */
+        #main-app { display: none; padding-bottom: 80px; }
+
+        .header { 
+            background: #0a0a0a; padding: 10px 15px; 
+            display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid #222;
+            position: sticky; top: 0; z-index: 100;
+        }
+        
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .mini-profile-img {
+            width: 35px; height: 35px; border-radius: 50%;
+            border: 2px solid var(--primary); object-fit: cover;
+        }
+
+        .coin-box { background: #ffd700; color: black; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 65px;
+            background: #0a0a0a; display: flex; justify-content: space-around;
+            align-items: center; border-top: 1px solid #222; z-index: 100;
+        }
+        .nav-item { text-align: center; color: #666; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 20px; }
+        .nav-item p { font-size: 11px; margin: 2px 0 0; }
+
+        /* Sections */
+        .section { display: none; padding: 15px; animation: fadeIn 0.5s; }
+        .active-section { display: block; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+
+        /* Games Grid */
+        .game-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin-top: 10px;
+        }
+        .game-card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .game-card:active { transform: scale(0.95); }
+        .game-card img {
+            width: 100%; height: 100px;
+            object-fit: cover; background: #222;
+        }
+        .game-info { padding: 8px; text-align: center; font-size: 13px; font-weight: 500; }
+
+        /* Spin Wheel */
+        .wheel-container { text-align: center; margin-top: 20px; }
+        #wheel { 
+            width: 280px; height: 280px; border-radius: 50%; 
+            border: 8px solid #333; position: relative; 
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); 
+            overflow: hidden; margin: 0 auto;
+            background: conic-gradient(#2FC4D8 0deg 60deg, #1a1a1a 60deg 120deg, #2FC4D8 120deg 180deg, #1a1a1a 180deg 240deg, #2FC4D8 240deg 300deg, #1a1a1a 300deg 360deg);
+        }
+        .wheel-label { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; }
+        .wheel-pointer { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ff0000; position: absolute; left: 50%; top: -10px; transform: translateX(-50%); z-index: 100; }
+
+        /* Profile Card */
+        .profile-card { background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: center; margin-top: 20px; }
+        .profile-img-container { 
+            width: 120px; height: 120px; border-radius: 50%; 
+            background: #333; margin: 0 auto 15px; 
+            overflow: hidden; border: 4px solid var(--primary);
+            position: relative; cursor: pointer;
+            box-shadow: 0 0 15px var(--primary);
+        }
+        .profile-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-badge {
+            position: absolute; bottom: 0; background: rgba(0,0,0,0.7);
+            width: 100%; color: white; font-size: 12px; padding: 5px 0;
+        }
+
+        /* Game Modal */
+        #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; }
+        .modal-header { height: 50px; background: #111; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
+        #game-frame { width: 100%; height: calc(100% - 50px); border: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-page">
+        <h2 class="purple-text">ALPHINEX PLAY</h2>
+        <div class="input-group"><input type="text" id="user-name" placeholder="Full Name"></div>
+        <div class="input-group"><input type="email" id="user-email" placeholder="Email Address"></div>
+        <div class="input-group"><input type="number" id="user-mobile" placeholder="Mobile Number"></div>
+        <button onclick="sendOTP()">LOGIN NOW</button>
+        <div id="otp-display">OTP: <span id="otp-val"></span></div>
+        <div class="input-group" id="otp-input-div" style="display:none; margin-top:15px;">
+            <input type="number" id="entered-otp" placeholder="Enter OTP">
+            <button onclick="verifyOTP()" style="margin-top:10px;">VERIFY & START</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="header">
+            <span class="purple-text" style="font-size: 18px;">GROZZY GAMER </span>
+            <div class="header-right">
+                <div class="coin-box"><i class="fas fa-coins"></i> <span id="coin-balance">100</span></div>
+                <img id="header-pic" src="https://via.placeholder.com/50/333/fff?text=?" class="mini-profile-img" onclick="showSection('profile', document.querySelectorAll('.nav-item')[3])">
+            </div>
+        </div>
+
+        <div id="home" class="section active-section">
+            <h3 class="purple-text"><i class="fas fa-fire"></i> Top Games</h3>
+            <div class="game-grid" id="game-container"></div>
+        </div>
+
+        <div id="leaderboard" class="section">
+            <h3 class="purple-text"><i class="fas fa-trophy"></i> Top Players</h3>
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 10px;">
+                <p>1. Shivam - 50,000 Coins</p><hr style="border-color:#333">
+                <p>2. Rahul - 42,000 Coins</p><hr style="border-color:#333">
+                <p>3. Priya - 38,000 Coins</p>
+            </div>
+        </div>
+
+        <div id="spin" class="section">
+            <div class="wheel-container">
+                <h3 class="purple-text">Daily Lucky Spin</h3>
+                <div style="position: relative; display: inline-block;">
+                    <div class="wheel-pointer"></div>
+                    <div id="wheel">
+                        <div class="wheel-label" style="transform: rotate(30deg) translate(70px, 20px);">20</div>
+                        <div class="wheel-label" style="transform: rotate(90deg) translate(70px, 20px);">50</div>
+                        <div class="wheel-label" style="transform: rotate(150deg) translate(70px, 20px);">100</div>
+                        <div class="wheel-label" style="transform: rotate(210deg) translate(70px, 20px);">300</div>
+                        <div class="wheel-label" style="transform: rotate(270deg) translate(70px, 20px);">500</div>
+                        <div class="wheel-label" style="transform: rotate(330deg) translate(70px, 20px);">600</div>
+                    </div>
+                </div><br><br>
+                <button onclick="spinWheel()" id="spin-btn">SPIN NOW</button>
+                <p id="spin-msg" style="color: gold; font-weight: bold; margin-top: 15px;"></p>
+            </div>
+        </div>
+
+        <div id="profile" class="section">
+            <div class="profile-card">
+                <div class="profile-img-container" onclick="document.getElementById('file-input').click()">
+                    <img id="display-pic" src="https://via.placeholder.com/120/333/fff?text=User" alt="Profile">
+                    <div class="upload-badge"><i class="fas fa-camera"></i> Edit Photo</div>
+                </div>
+                <input type="file" id="file-input" style="display:none" accept="image/*" onchange="previewImage(event)">
+                <h2 id="prof-name" class="purple-text" style="margin: 5px 0;">User Name</h2>
+                <p id="prof-email" style="color:#888; margin: 0;">user@email.com</p>
+                <p id="prof-mobile" style="color:#888; margin: 5px 0;">+91 0000000000</p>
+                <br>
+                <button onclick="location.reload()" style="background: #e74c3c;">LOGOUT</button>
+            </div>
+        </div>
+
+        <div id="game-modal">
+            <div class="modal-header">
+                <span id="current-game-title" style="font-weight: bold;">Playing Game...</span>
+                <button onclick="closeGame()" style="width: auto; padding: 5px 15px; background: #e74c3c;">Close X</button>
+            </div>
+            <iframe id="game-frame" src=""></iframe>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showSection('home', this)"><i class="fas fa-gamepad"></i><p>Games</p></div>
+            <div class="nav-item" onclick="showSection('leaderboard', this)"><i class="fas fa-trophy"></i><p>Rank</p></div>
+            <div class="nav-item" onclick="showSection('spin', this)"><i class="fas fa-spinner"></i><p>Spin</p></div>
+            <div class="nav-item" onclick="showSection('profile', this)"><i class="fas fa-user-circle"></i><p>Profile</p></div>
+        </div>
+    </div>
+
+    <script>
+        let generatedOTP;
+        let coins = 100;
+        let lastSpinDate = localStorage.getItem('lastSpinDate');
+
+        // Total 32 Games (Naya game add kar diya gaya hai)
+        const gamesList = [
+            { name: "FOOTBALL LEGENDS 2026", id: "13eabea86f7c4cd993a156258420e9ec", img: "Football.jpg" },
+            { name: "PARK FEVER", id: "b434d014d65640d8a1582af70665f0d5", img: "Bus.jpg" },
+            { name: "BUBBLE SHOOTER", id: "ceccfc14ea414640840979ab92790710", img: "Bubble1.jpg" },
+            { name: "POP THE BUBBLE", id: "c06470e8c5d64368b26849a15de9a972", img: "Bubble2.jpg" },
+            { name: "POTION SORT", id: "1e850284c3ef4ca5bdb1614b430ed1fa", img: "Glass.jpg" },
+            { name: "TRAFFIC RACING", id: "f3ee6674b4ea4579aeefd54d7bf388f0", img: "Road.jpg" },
+            { name: "ARROW PUZZLE", id: "451e0b2249e1444c8a43a5a545b96a86", img: "Tree.jpg" },
+            { name: "ARROW MASTER", id: "36ec3da3394e42bb8e1f7c49469cbbfd", img: "Arrow1.jpg" },
+            { name: "MYSTIC WORD QUESTS", id: "46d7f505813c4b4285c47579542df3ab", img: "Word.jpg" },
+            { name: "ROYAL PIN", id: "780bdf6c7e3244ed9237d175f6c099db", img: "King.jpg" },
+            { name: "HEXA STACK", id: "ac3276e1819644858f0c8693c219064c", img: "Fruit.jpg" },
+            { name: "VORTEX BALL", id: "22c23c982349439294e9a3d0d55b7a76", img: "Ball.jpg" },
+            { name: "REAL WAR", id: "b16fdfa7e3ec4368be8213a56e12058f", img: "Head.jpg" },
+            { name: "GEOMETRY ARROW", id: "50d154abb6c5483b847cbeea848e73ff", img: "Line.jpg" },
+            { name: "WOOD PUZZLE", id: "a00735b23bde40798cfc095745212754", img: "Wood.jpg" },
+            { name: "WORD PUZZLE", id: "1b392a6ff2514ce48a70c90b349e5de5", img: "Pattern.jpg" },
+            { name: "SNOW BALL RACING MULTIPLAYER", id: "061faa6d2cd34e89a507fd435d040946", img: "Snow.jpg" },
+            { name: "ROLLING BALL RACE", id: "c77c8b1ffef242609915d126535b0ca9", img: "Run.jpg" },
+            { name: "CUTE MAHJONG CONNECT", id: "bec0b111881c461cacabc5d44a8f65bc", img: "Pet.jpg" },
+            { name: "DRAW ONE PART BRAIN PUZZLE", id: "4c35db256f3c4f5bbf041169c0465a3c", img: "Man.jpg" },
+            { name: "SUDO TETROID DAILY", id: "82e9077372484a82ab196e2e38c7efc6", img: "Sudo.jpg" },
+            { name: "OFFICE PYRAMID SOLITAIRE", id: "ca808ce686fa485c81fcf487ef65cac1", img: "Office.jpg" },
+            { name: "STICKMAN ADVENTURE", id: "fd5ae555f42e4dac872819ed9125616c", img: "Knee.jpg" },
+            { name: "CRUNCH LOCKED", id: "b93aa16c5cc343818f75ee816bdb84fa", img: "Locked.jpg" },
+            { name: "SHOOTING BLOCKY COMBAT SWAT", id: "fae123fb361040bdaf59982b8772089c", img: "Fire.jpg" },
+            { name: " BOXING FIGHTING  ", id: "89870ceb041946bea337b13582c25356", img: "Boxing.jpg" },
+            { name: "CRICKET", id: "d27907a8189e423da6fca6b580bfbf84", img: "Cricket.jpg" },
+            { name: "ONLINE CHESS", id: "6c943823fcb94f53a8a0c51f796736aa", img: "Chess.jpg" },
+            { name: "ARCHERY KING", id: "08aeb21f51414d839a1a91d73f080fd8", img: "Circle.jpg" },
+            { name: "SLALOM SKI SIMULATOR", id: "dbce51827df6427b97aebf5e174987c1", img: "Snow man.jpg" },
+            { name: "CYCLE RUN", id: "bc1f2ae8abd54fa1b44e4357fd3fe323", img: "Cycle.jpg" },
+            { name: "LUDO MULTIPLAYER", id: "56428441436e4135a822f68a592fc64f", img: "Ludo.jpg" }
+        ];
+        
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const dataURL = reader.result;
+                document.getElementById('display-pic').src = dataURL;
+                document.getElementById('header-pic').src = dataURL;
+                localStorage.setItem('userPhoto', dataURL);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        window.onload = function() {
+            const savedPhoto = localStorage.getItem('userPhoto');
+            if(savedPhoto) {
+                document.getElementById('display-pic').src = savedPhoto;
+                document.getElementById('header-pic').src = savedPhoto;
+            }
+        }
+
+        function loadGames() {
+            const container = document.getElementById('game-container');
+            container.innerHTML = '';
+            gamesList.forEach(game => {
+                container.innerHTML += `<div class="game-card" onclick="playGame('${game.id}', '${game.name}')"><img src="${game.img}" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Game'"><div class="game-info">${game.name}</div></div>`;
+            });
+        }
+
+        function playGame(gameId, title) {
+            document.getElementById('game-frame').src = `https://html5.gamedistribution.com/${gameId}/?gd_sdk_referrer_url=https://www.example.com/games/`;
+            document.getElementById('current-game-title').innerText = title;
+            document.getElementById('game-modal').style.display = 'block';
+        }
+
+        function closeGame() { document.getElementById('game-modal').style.display = 'none'; document.getElementById('game-frame').src = ''; }
+
+        function sendOTP() {
+            if(!document.getElementById('user-name').value) return alert("Please enter name");
+            generatedOTP = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('otp-val').innerText = generatedOTP;
+            document.getElementById('otp-display').style.display = 'block';
+            document.getElementById('otp-input-div').style.display = 'block';
+        }
+
+        function verifyOTP() {
+            if(document.getElementById('entered-otp').value == generatedOTP) {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('prof-name').innerText = document.getElementById('user-name').value;
+                document.getElementById('prof-email').innerText = document.getElementById('user-email').value;
+                document.getElementById('prof-mobile').innerText = document.getElementById('user-mobile').value;
+                loadGames();
+            } else { alert("Wrong OTP!"); }
+        }
+
+        function showSection(id, element) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(id).classList.add('active-section');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function spinWheel() {
+            const today = new Date().toDateString();
+            if(lastSpinDate === today) return alert("Already Spun Today!");
+            const rewards = [20, 50, 100, 300, 500, 0];
+            const randomIndex = Math.floor(Math.random() * rewards.length);
+            document.getElementById('wheel').style.transform = `rotate(-${3600 + (randomIndex * 60)}deg)`;
+            document.getElementById('spin-btn').disabled = true;
+            setTimeout(() => {
+                const won = rewards[randomIndex];
+                coins += won;
+                document.getElementById('coin-balance').innerText = coins;
+                document.getElementById('spin-msg').innerText = won > 0 ? `Won ${won} Coins!` : "Better luck next time!";
+                localStorage.setItem('lastSpinDate', today);
+                document.getElementById('spin-btn').disabled = false;
+            }, 4000);
+        }
+    </script>
+</body>
+                                                 </html>
+              
