@@ -1,1 +1,4 @@
+User-agent: *
+Allow: /
 
+Sitemap: https://grozzygamermax.github.io/Grozzy-gamer-max/sitemap.xml
